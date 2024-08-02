@@ -3,6 +3,7 @@ console.log("Welcome to Tic Tac Toe Game");
 let backgroundMusic = new Audio("GTA.mp3");
 let audioTurn = new Audio("mixkit-sci-fi-click-900.wav");
 let gameover = new Audio("aaha-tamatar-bade-mazedaar.mp3");
+let drawMusic = new Audio("gta-v-death-sound-effect-102.mp3");
 let turn = "X";
 let isgameover = false;
 
@@ -35,6 +36,17 @@ const checkWin = () => {
     });
 };
 
+// Function to check for a Draw.
+const checkDraw = () => {
+    let boxtext = document.getElementsByClassName('boxtext');
+    for (let i = 0; i < boxtext.length; i++) {
+        if (boxtext[i].innerText === "") {
+            return false;
+        }
+    }
+    return true;
+};
+
 // Start background music on button click
 document.getElementById("startMusic").addEventListener("click", () => {
     backgroundMusic.play().catch(error => {
@@ -53,16 +65,22 @@ let boxes = document.getElementsByClassName("box");
 Array.from(boxes).forEach(element => {
     let boxtext = element.querySelector('.boxtext');
     element.addEventListener('click', () => {
-        if (boxtext.innerText === ''&& !isgameover) {
+        if (boxtext.innerText === '' && !isgameover) {
             boxtext.innerText = turn;
             turn = changeTurn();
             audioTurn.play();
             checkWin();
             if (!isgameover) {
-                document.getElementsByClassName("info")[0].innerText = "Turn for " + turn;
-            }
-            else
-            {
+                if (checkDraw()) {
+                    document.querySelector('.info').innerText = "Draw";
+                    drawMusic.play();
+                    isgameover = true;
+                    backgroundMusic.pause();
+                    backgroundMusic.currentTime = 0;
+                } else {
+                    document.getElementsByClassName("info")[0].innerText = "Turn for " + turn;
+                }
+            } else {
                 gameover.play();
                 backgroundMusic.pause();
                 backgroundMusic.currentTime = 0;
@@ -71,17 +89,17 @@ Array.from(boxes).forEach(element => {
     });
 });
 
-
-//Add onclick listener to reset button
-reset.addEventListener('click', ()=>{
+// Add onclick listener to reset button
+reset.addEventListener('click', () => {
     let boxtexts = document.querySelectorAll('.boxtext');
     Array.from(boxtexts).forEach(element => {
         element.innerText = ""
     });
     turn = "X";
     isgameover = false;
+    gameover.pause();
+    drawMusic.pause();
     document.getElementsByClassName("info")[0].innerText = "Turn for " + turn;
     document.querySelector('.imgbox').getElementsByTagName('img')[0].style.width = "0px";
     document.querySelector(".line").style.width = "0vw";
-
-})
+});
